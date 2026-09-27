@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIM-BIMWIN KUA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta name="color-scheme" content="light dark">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.gis&&gis()"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['"Plus Jakarta Sans"','sans-serif']}}}}</script>
+<style>
+/* ---------- Mode gelap ---------- */
+:root[data-theme="dark"]{color-scheme:dark}
+:root[data-theme="dark"] body{background:#0b1220;color:#e2e8f0}
+:root[data-theme="dark"] header{background:rgba(15,23,42,.92) !important;border-color:#1e293b !important}
+:root[data-theme="dark"] .bg-white,:root[data-theme="dark"] .card{background-color:#111c30 !important}
+:root[data-theme="dark"] .bg-slate-50{background-color:#0b1220 !important}
+:root[data-theme="dark"] .bg-slate-100{background-color:#1e293b !important}
+:root[data-theme="dark"] .bg-slate-200{background-color:#334155 !important}
+:root[data-theme="dark"] .hover\:bg-slate-200:hover{background-color:#334155 !important}
+:root[data-theme="dark"] .border-slate-100,:root[data-theme="dark"] .border-slate-200,:root[data-theme="dark"] .border{border-color:#243044 !important}
+:root[data-theme="dark"] .text-slate-400{color:#94a3b8 !important}
+:root[data-theme="dark"] .text-slate-500{color:#a3adc2 !important}
+:root[data-theme="dark"] .text-slate-600{color:#cbd5e1 !important}
+:root[data-theme="dark"] .text-slate-700{color:#e2e8f0 !important}
+:root[data-theme="dark"] .text-slate-800{color:#f1f5f9 !important}
+:root[data-theme="dark"] .bg-blue-50{background-color:#0f2743 !important}
+:root[data-theme="dark"] .bg-rose-50{background-color:#3a1420 !important}
+:root[data-theme="dark"] .bg-amber-50{background-color:#3a2c0d !important}
+:root[data-theme="dark"] .bg-amber-100{background-color:#453410 !important}
+:root[data-theme="dark"] .bg-emerald-50{background-color:#0c2c22 !important}
+:root[data-theme="dark"] .bg-emerald-100{background-color:#0f3a2b !important}
+:root[data-theme="dark"] .bg-indigo-50{background-color:#1a2044 !important}
+:root[data-theme="dark"] .border-amber-200{border-color:#5c4614 !important}
+:root[data-theme="dark"] .border-emerald-200{border-color:#125e42 !important}
+:root[data-theme="dark"] .text-amber-700,:root[data-theme="dark"] .text-amber-800{color:#fbbf24 !important}
+:root[data-theme="dark"] .text-emerald-700,:root[data-theme="dark"] .text-emerald-800{color:#34d399 !important}
+:root[data-theme="dark"] .text-rose-600,:root[data-theme="dark"] .text-rose-700{color:#fb7185 !important}
+:root[data-theme="dark"] .text-blue-600{color:#60a5fa !important}
+:root[data-theme="dark"] .text-indigo-600,:root[data-theme="dark"] .text-indigo-700{color:#818cf8 !important}
+:root[data-theme="dark"] .inp{background-color:#0b1220 !important;border-color:#243044 !important;color:#e2e8f0 !important}
+:root[data-theme="dark"] .inp::placeholder{color:#64748b}
+:root[data-theme="dark"] th{background-color:#0f1a2e !important}
+:root[data-theme="dark"] td{border-color:#1e293b !important}
+:root[data-theme="dark"] .btn2{background-color:#1e293b !important;color:#e2e8f0 !important}
+:root[data-theme="dark"] .btn2:hover{background-color:#334155 !important}
+:root[data-theme="dark"] .btn2:disabled{opacity:.4}
+:root[data-theme="dark"] #modal .bg-white,:root[data-theme="dark"] #exam{background-color:#0b1220 !important}
+#exam,#exam *{transition:background-color .15s,color .15s,border-color .15s}
+:root[data-theme="dark"] .exOptOff{background-color:#0f1a2e !important;border-color:#243044 !important;color:#e2e8f0 !important}
+:root[data-theme="dark"] code{background-color:#1a2044 !important;color:#a5b4fc !important}
+#setGrid{column-gap:1rem}
+@media (min-width:768px){#setGrid{column-count:2}}
+#setGrid > .card{break-inside:avoid;margin-bottom:1rem;width:100%}
+input[type="date"]{position:relative}
+input[type="date"]::-webkit-calendar-picker-indicator{position:absolute;right:0;top:0;width:2.5rem;height:100%;opacity:0;cursor:pointer;margin:0;padding:0}
+:root[data-theme="dark"] #exNav{background-color:#0f1a2e !important;border-color:#243044 !important}
+</style>
+<style type="text/tailwindcss">
+.card{@apply bg-white rounded-2xl shadow-sm border border-slate-200 p-5}
+.inp{@apply w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500}
+.btn{@apply px-4 py-2 rounded-xl text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed}
+.btn2{@apply px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40}
+.tab{@apply px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap}
+.bd{@apply px-2 py-0.5 rounded text-[10px] font-bold}
+th{@apply text-left text-xs font-bold text-slate-500 px-3 py-2 bg-slate-50 sticky top-0 z-10}
+td{@apply px-3 py-2 text-sm border-t border-slate-100 align-top}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+<header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b px-4 py-3 flex items-center justify-between gap-2">
+  <div class="flex items-center gap-3 min-w-0">
+    <div class="w-10 h-10 shrink-0 rounded-xl bg-emerald-600 text-white flex items-center justify-center"><i class="fa-solid fa-hands-holding-child"></i></div>
+    <div class="min-w-0"><h1 id="kua" class="font-bold leading-tight truncate">SIM-BIMWIN</h1><p class="text-xs text-slate-500 truncate">Sistem Bimbingan Perkawinan</p></div>
+  </div>
+  <div class="flex items-center gap-2 shrink-0"><a id="waContactBtn" href="#" target="_blank" rel="noopener" title="Hubungi Admin via WhatsApp" class="hidden w-9 h-9 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 items-center justify-center"><i class="fa-brands fa-whatsapp text-lg"></i></a><button id="rf" onclick="refreshData()" title="Muat ulang data" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600"><i class="fa-solid fa-rotate"></i></button><button id="thBtn" onclick="toggleTheme()" title="Ganti mode gelap/terang" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600"><i id="thIcon" class="fa-solid fa-moon"></i></button>
+  <div id="tg" class="bg-slate-100 p-1 rounded-xl flex text-xs shrink-0">
+    <button id="rP" onclick="setRole('P')" class="tab">Peserta</button>
+    <button id="rA" onclick="setRole('A')" class="tab hidden"><i class="fa-solid fa-user-shield mr-1"></i>Admin</button>
+  </div></div>
+</header>
+
+<main class="max-w-6xl mx-auto p-4">
+<div id="boot" class="text-center py-24 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i></div>
+<section id="P">
+  <div id="auth" class="hidden max-w-md mx-auto card mt-4">
+    <div class="text-center mb-4"><h2 id="aTitle" class="text-xl font-bold">Masuk Akun Catin</h2><p class="text-xs text-slate-500">Gunakan NIK calon pengantin pria atau wanita</p></div>
+    <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 rounded-xl mb-4 text-sm">
+      <button id="tL" onclick="setAuth('l')" class="tab">Masuk NIK</button><button id="tR" onclick="setAuth('r')" class="tab">Daftar Bimwin</button>
+    </div>
+    <form id="fL" onsubmit="doLogin(event)" class="space-y-3">
+      <input id="lNik" class="inp" inputmode="numeric" maxlength="16" pattern="\d{16}" placeholder="16 digit NIK" required>
+      <button class="btn w-full">Masuk ke dashboard</button>
+    </form>
+    <form id="fR" onsubmit="doReg(event)" class="space-y-3 hidden"></form>
+    <div id="regRes" class="hidden"></div>
+  </div>
+  <div id="dash" class="hidden space-y-4"></div>
+</section>
+
+<section id="A" class="hidden">
+  <div id="gate" class="max-w-md mx-auto card text-center mt-8 space-y-3">
+    <i class="fa-solid fa-user-shield text-3xl text-indigo-600"></i>
+    <h2 class="text-lg font-bold">Masuk sebagai admin KUA</h2>
+    <p class="text-xs text-slate-500">Gunakan akun Google yang terdaftar sebagai admin. Setelah masuk sekali, browser ini akan langsung membuka dashboard admin.</p>
+    <div id="gBtn" class="flex justify-center"></div>
+  </div>
+  <div id="adm" class="hidden">
+    <div id="admLoad" class="text-center py-6 text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-xl"></i></div>
+    <div class="flex gap-2 overflow-x-auto pb-2 items-center">
+      <button id="b_mon" onclick="atab('mon')" class="tab">Monitoring</button><button id="b_soal" onclick="atab('soal')" class="tab">Bank soal</button>
+      <button id="b_mat" onclick="atab('mat')" class="tab">Materi</button><button id="b_set" onclick="atab('set')" class="tab">Pengaturan</button>
+      <button onclick="adminLogout()" class="tab text-rose-600 ml-auto shrink-0"><i class="fa-solid fa-right-from-bracket mr-1"></i>Keluar</button>
+    </div>
+    <div id="t_mon" class="space-y-3">
+      <div class="card flex flex-wrap items-center gap-2">
+        <div id="fBimWrap" class="relative flex-1 min-w-[170px]">
+          <button type="button" id="fBimBtn" onclick="toggleBimPanel()" class="inp text-left flex justify-between items-center gap-2"><span id="fBimLabel" class="truncate">Semua tanggal bimbingan</span><i class="fa-solid fa-chevron-down text-xs shrink-0"></i></button>
+          <div id="fBimPanel" class="hidden absolute z-30 mt-1 w-72 max-w-[90vw] bg-white border border-slate-200 rounded-xl shadow-lg p-2">
+            <input id="fBimSearch" class="inp mb-2" placeholder="Cari tanggal bimbingan..." oninput="renderBimOptions()">
+            <div id="fBimOptions" class="space-y-0.5 text-sm max-h-56 overflow-auto"></div>
+            <div class="flex justify-between pt-2 mt-1 border-t border-slate-100"><button class="btn2" onclick="clearBim()">Bersihkan</button><button class="btn2" onclick="toggleBimPanel()">Selesai</button></div>
+          </div>
+        </div>
+        <div class="relative flex-1 min-w-[150px]"><input id="fBimAwal" type="date" class="inp pr-9 w-full" onchange="renderMon(1)" title="Tanggal bimbingan dari"><i class="fa-regular fa-calendar text-slate-400 text-xs absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none"></i></div>
+        <div class="relative flex-1 min-w-[150px]"><input id="fBimAkhir" type="date" class="inp pr-9 w-full" onchange="renderMon(1)" title="Tanggal bimbingan sampai"><i class="fa-regular fa-calendar text-slate-400 text-xs absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none"></i></div>
+        <select id="fS" class="inp flex-1 min-w-[170px]" onchange="renderMon(1)"><option value="">Semua status tes</option><option value="0">Belum mengerjakan semua</option><option value="1">Lulus satu</option><option value="2">Lulus semua</option></select>
+        <button class="btn2 w-10 h-10 !px-0 shrink-0" title="Reset filter" onclick="resetMon()"><i class="fa-solid fa-rotate-left"></i></button>
+        <button class="btn w-10 h-10 !px-0 shrink-0" title="Export Excel" onclick="exp()"><i class="fa-solid fa-file-excel"></i></button>
+      </div>
+      <div class="card p-0 overflow-auto max-h-[62vh]"><table class="w-full min-w-[640px]"><thead><tr><th>Catin pria &amp; wanita</th><th>Tgl bimbingan</th><th>Status post test</th><th>Aksi</th></tr></thead><tbody id="monBody"></tbody></table></div><div id="monPg" class="flex justify-center items-center gap-2"></div>
+    </div>
+    <div id="t_soal" class="space-y-3 hidden">
+      <div class="card grid grid-cols-2 md:grid-cols-5 gap-2">
+        <select id="sK" class="inp" onchange="renderSoal(1)"></select>
+        <select id="sJ" class="inp" onchange="renderSoal(1)"><option value="">Semua jenis</option><option>Pilihan Ganda Biasa</option><option>Pilihan Ganda Bertingkat</option></select>
+        <select id="sP" class="inp" onchange="renderSoal(1)"><option value="">Semua peruntukan</option><option>Pria Saja</option><option>Wanita Saja</option><option>Pria dan Wanita</option></select>
+        <select id="sS" class="inp" onchange="renderSoal(1)"><option value="">Semua status</option><option>Aktif</option><option>Nonaktif</option></select>
+        <button class="btn" onclick="formSoal()"><i class="fa-solid fa-plus mr-1"></i>Tambah soal</button>
+      </div>
+      <div class="card p-0 overflow-auto max-h-[62vh]"><table class="w-full min-w-[720px]"><thead><tr><th>ID</th><th>Pertanyaan</th><th>Kategori / jenis / peruntukan</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="soalBody"></tbody></table></div><div id="soalPg" class="flex justify-center items-center gap-2"></div>
+    </div>
+    <div id="t_mat" class="space-y-3 hidden">
+      <div class="card sticky top-[69px] z-20 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <input id="aq" class="inp" placeholder="Cari judul" oninput="renderAMat(1)"><select id="ak" class="inp" onchange="renderAMat(1)"></select>
+        <input id="ap" class="inp" placeholder="Pengarang" oninput="renderAMat(1)"><button class="btn" onclick="formMateri()"><i class="fa-solid fa-plus mr-1"></i>Tambah materi</button>
+      </div>
+      <div id="aGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3"></div><div id="aPg" class="flex justify-center items-center gap-2"></div>
+    </div>
+    <div id="t_set" class="hidden"></div>
+  </div>
+</section>
+<section id="V" class="hidden"><div id="vBox" class="max-w-md mx-auto card mt-8 text-center space-y-3"><p class="text-sm text-slate-500">Memeriksa sertifikat...</p></div></section>
+</main>
+
+<div id="modal" class="fixed inset-0 z-50 bg-slate-900/60 hidden items-center justify-center p-3">
+  <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col">
+    <div class="flex justify-between items-center p-4 border-b"><h3 id="mTitle" class="font-bold"></h3><button onclick="closeM()"><i class="fa-solid fa-xmark text-lg"></i></button></div>
+    <div id="mBody" class="p-4 overflow-y-auto space-y-3"></div>
+    <div class="p-3 border-t flex justify-end gap-2"><button class="btn2" onclick="closeM()">Tutup</button><button id="mSave" class="btn">Simpan</button></div>
+  </div>
+</div>
+<div id="viewer" class="fixed inset-0 z-50 bg-slate-900/80 hidden flex-col p-3">
+  <div class="flex justify-between text-white mb-2"><b id="vTitle" class="truncate"></b><button onclick="closeV()"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+  <iframe id="vFrame" class="flex-1 w-full bg-white rounded-xl"></iframe>
+</div>
+<div id="exam" class="fixed inset-0 z-[60] bg-white text-slate-800 hidden p-4 sm:p-8 overflow-y-auto">
+  <div class="flex justify-between items-center border-b border-slate-200 pb-3 max-w-3xl mx-auto w-full">
+    <div><b>Post test Bimwin</b><p id="exWho" class="text-xs text-slate-500"></p></div>
+    <div class="flex items-center gap-2">
+      <button id="exNavBtn" onclick="toggleExNav()" class="btn2" title="Daftar nomor soal"><i class="fa-solid fa-list-check mr-1"></i>Daftar soal</button>
+      <button onclick="toggleTheme()" title="Ganti mode gelap/terang" class="w-9 h-9 rounded-xl btn2 !px-0"><i id="exThIcon" class="fa-solid fa-moon"></i></button>
+      <div class="text-right"><div id="exTime" class="text-2xl font-bold tabular-nums text-amber-600">00:00</div><p class="text-[10px] text-slate-500">Jangan menutup atau menyegarkan halaman</p></div>
+    </div>
+  </div>
+  <div id="exNav" class="hidden max-w-3xl mx-auto w-full mt-3 p-3 rounded-2xl border border-slate-200 bg-slate-50">
+    <p class="text-xs text-slate-500 mb-2">Klik nomor untuk langsung menuju soal itu. <span class="inline-block w-2.5 h-2.5 rounded-sm bg-emerald-500 align-middle ml-1"></span> terjawab · <span class="inline-block w-2.5 h-2.5 rounded-sm bg-slate-300 align-middle ml-1"></span> belum</p>
+    <div id="exNavGrid" class="grid grid-cols-8 sm:grid-cols-10 gap-1.5"></div>
+  </div>
+  <div class="max-w-3xl mx-auto w-full py-6 space-y-4">
+    <p id="exNo" class="text-xs text-slate-500"></p><h3 id="exQ" class="text-lg font-semibold"></h3><div id="exOpts" class="space-y-2"></div>
+    <div class="flex justify-between pt-2">
+      <button id="exPrev" class="btn2" onclick="nav(-1)">Sebelumnya</button><button id="exNext" class="btn" onclick="nav(1)">Berikutnya</button><button id="exSend" class="btn hidden" onclick="sendExam()">Kirim jawaban</button>
+    </div>
+  </div>
+</div>
+<div id="toasts" class="fixed bottom-4 right-4 z-[70] space-y-2"></div>
+
+<script>
+/* ===== KONFIGURASI (sudah terisi; ubah hanya jika membuat deployment/Client ID baru) ===== */
+const GAS_URL='https://script.google.com/macros/s/AKfycbwzEpjBp-Pi_TCz2hfnpaUsLCPdOR_MvInlL8noC4_lD3eW0iSQCBlG8FzWB_4Xw67j/exec';
+const CLIENT_ID='922525002522-mejb12r8m27q0ja104hrmq5q2ub5js38.apps.googleusercontent.com';
+/* ========================================= */
+const PH=['NAMA_PRIA','NIK_PRIA','WA_PRIA','ALAMAT_PRIA','NAMA_WANITA','NIK_WANITA','WA_WANITA','ALAMAT_WANITA','TGL_AKAD','TGL_BIMWIN','NOMOR_UNDANGAN','NOMOR_SERTIFIKAT','NILAI_PRIA','NILAI_WANITA','TGL_CETAK','NAMA_KUA','ALAMAT_KUA','NAMA_KEPALA','NIP_KEPALA','BULAN_ROMAWI','QR_CODE'];
+const $=i=>document.getElementById(i);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fd=s=>s?new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'-';
+const S={info:{s:{jadwal:[]},materi:[]},u:null,tok:null,showA:false,ad:null,mp:1,amp:1,ex:null};
+const st=c=>c.tesP.pass&&c.tesW.pass?2:(c.tesP.pass||c.tesW.pass)?1:0;
+
+async function api(action,data={},idToken){
+  const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,data,idToken})});
+  const j=await r.json(); if(!j.ok) throw new Error(j.error||'Terjadi kesalahan'); return j.data;
+}
+const adm=async(a,d)=>{try{return await api(a,d,S.tok)}catch(e){if(/admin|sesi/i.test(e.message))adminOut(false);throw e}};
+let curBtn=null;
+addEventListener('click',e=>{curBtn=e.target.closest('button');setTimeout(()=>{curBtn=null},0)},true);
+function busy(b,on){
+  if(!b)return;
+  if(on){if(b.dataset.h!==undefined)return;b.dataset.h=b.innerHTML;b.style.minWidth=b.offsetWidth+'px';b.disabled=true;
+    b.innerHTML='<i class="fa-solid fa-circle-notch fa-spin mr-1"></i>'+b.innerHTML.replace(/<i [^>]*><\/i>\s*/g,'')}
+  else if(b.dataset.h!==undefined){b.innerHTML=b.dataset.h;delete b.dataset.h;b.style.minWidth='';b.disabled=false}
+}
+const run=async f=>{const b=curBtn;busy(b,1);try{return await f()}catch(e){toast(e.message,1)}finally{busy(b,0)}};
+function setUser(u){S.u=u;try{sessionStorage.setItem('bw_uv',JSON.stringify(u));sessionStorage.setItem('bw_u',u.me.nik)}catch(e){}}
+async function loadInfo(){S.info=await api('info');try{localStorage.setItem('bw_info',JSON.stringify(S.info))}catch(e){}$('kua').textContent=S.info.s.namaKua;fillBim();updateWaBtn();if(!$('P').classList.contains('hidden')&&S.u)renderMateri(S.mp)}
+function toast(m,e){const d=document.createElement('div');d.className='px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-lg '+(e?'bg-rose-600':'bg-emerald-600');d.textContent=m;$('toasts').append(d);setTimeout(()=>d.remove(),3800)}
+const b64=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Blob([u],{type:'application/pdf'})};
+const pv=u=>{const m=/\/file\/d\/([^/]+)/.exec(u||'');return m?`https://drive.google.com/file/d/${m[1]}/preview`:u};
+const pager=(p,n,fn)=>`<button class="btn2" ${p<=1?'disabled':''} onclick="${fn}(${p-1})">Sebelumnya</button><span class="text-xs">Hal ${p} / ${n}</span><button class="btn2" ${p>=n?'disabled':''} onclick="${fn}(${p+1})">Berikutnya</button>`;
+
+/* ---------- role & admin auth ---------- */
+function setRole(r){
+  $('P').classList.toggle('hidden',r!='P');$('A').classList.toggle('hidden',r!='A');
+  $('rP').className='tab '+(r=='P'?'bg-white shadow-sm':'text-slate-500');$('rA').className='tab '+(r=='A'?'bg-white shadow-sm text-indigo-700':'text-slate-500')+(S.showA?'':' hidden');
+  $('tg').classList.toggle('hidden',r=='A'&&!!S.tok); // setelah admin masuk dashboard, tombol beralih ke peserta disembunyikan
+  if(r=='A'){$('gate').classList.toggle('hidden',!!S.tok);$('adm').classList.toggle('hidden',!S.tok);
+    if(!S.tok){gis();const g=$('gBtn');
+      if(CLIENT_ID.startsWith('GANTI'))g.innerHTML='<p class="text-xs text-rose-600">CLIENT_ID belum diisi di index.html</p>';
+      else if(gisReady){g.innerHTML='';google.accounts.id.renderButton(g,{theme:'outline',size:'large'})}
+      else{g.innerHTML='<p class="text-xs text-slate-500">Memuat Google Sign-In... klik Admin lagi dalam beberapa detik. Jika tetap gagal, matikan ad-blocker.</p>';setTimeout(()=>{if(!S.tok&&!$('A').classList.contains('hidden'))setRole('A')},2500)}}}
+  updateWaBtn();
+}
+function updateWaBtn(){const el=$('waContactBtn');if(!el)return;
+  const showIt=!$('P').classList.contains('hidden'),num=(S.info.s.waAdmin||'').replace(/\D/g,'');
+  if(showIt&&num){const n=num.startsWith('0')?'62'+num.slice(1):(num.startsWith('62')?num:'62'+num);el.href='https://wa.me/'+n;el.classList.remove('hidden');el.classList.add('flex')}
+  else{el.classList.add('hidden');el.classList.remove('flex')}}
+let gisReady=0;
+function gis(){
+  if(gisReady||!window.google||!google.accounts||CLIENT_ID.startsWith('GANTI'))return;
+  google.accounts.id.initialize({client_id:CLIENT_ID,auto_select:true,callback:onCred});gisReady=1;
+  if(localStorage.getItem('bw_adm')&&!S.tok)google.accounts.id.prompt(); // hanya untuk browser yang pernah login admin
+}
+async function onCred(r){
+  try{await api('adminLogin',{},r.credential);S.tok=r.credential;sessionStorage.setItem('bw_a',r.credential);localStorage.setItem('bw_adm','1');S.showA=true;touch();setRole('A');await loadAdmin()}
+  catch(e){toast(e.message,1);if(!S.tok&&/admin/i.test(e.message)){localStorage.removeItem('bw_adm');S.showA=false;setRole('P')}}
+}
+function adminOut(idle){
+  S.tok=null;S.ad=null;sessionStorage.removeItem('bw_a');try{google.accounts.id.disableAutoSelect()}catch(e){}
+  setRole('A');if(idle)toast('Sesi admin berakhir: tidak ada aktivitas selama 5 menit',1)}
+function adminLogout(){if(!confirm('Keluar dari mode admin?'))return;localStorage.removeItem('bw_adm');S.showA=false;adminOut(false);setRole('P')}
+const jwtExp=t=>{try{return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp}catch(e){return 0}};
+
+/* ---------- muat ulang data (tanpa hard refresh) ---------- */
+const refreshData=()=>run(async()=>{
+  await loadInfo();
+  if(!$('A').classList.contains('hidden')&&S.tok)await loadAdmin();
+  else if(S.u){setUser(await api('login',{nik:S.u.me.nik}));dash()}
+  toast('Data diperbarui')});
+
+/* ---------- sesi, idle 5 menit, boot ---------- */
+const IDLE=5*60*1000;let act=Date.now();
+function touch(){act=Date.now();try{sessionStorage.setItem('bw_t',act)}catch(e){}}
+['click','keydown','touchstart','scroll','mousemove'].forEach(ev=>addEventListener(ev,()=>{if(Date.now()-act>1500)touch()},{passive:true}));
+setInterval(()=>{if(S.ex||S.tok||Date.now()-act<IDLE)return; // admin tidak kena batas idle 5 menit
+  if(S.u){logout();toast('Sesi berakhir: tidak ada aktivitas selama 5 menit',1)}},15000);
+async function boot(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('v'))return showVerify(q.get('v'));
+  S.showA=localStorage.getItem('bw_adm')=='1'||q.has('admin');
+  setAuth('l');buildReg();
+  try{S.info=JSON.parse(localStorage.getItem('bw_info'))||S.info}catch(e){}
+  if(S.info.s.namaKua)$('kua').textContent=S.info.s.namaKua;
+  const fresh=Date.now()-Number(sessionStorage.getItem('bw_t')||0)<IDLE,at=sessionStorage.getItem('bw_a'),uv=sessionStorage.getItem('bw_uv');
+  $('boot').remove();
+  if(fresh&&at&&jwtExp(at)>Date.now()/1000+60){S.tok=at;touch();setRole('A');run(loadAdmin);run(loadInfo);return}
+  if(fresh&&uv&&S.info.s.kkm!==undefined){
+    try{S.u=JSON.parse(uv);touch();setRole('P');dash();
+      run(async()=>{const a=JSON.stringify(S.info);await loadInfo();const nu=await api('login',{nik:S.u.me.nik});
+        if(JSON.stringify(nu)!==JSON.stringify(S.u)||a!==JSON.stringify(S.info)){setUser(nu);dash()}});
+      return}
+    catch(e){S.u=null;sessionStorage.removeItem('bw_uv')}
+  }
+  $('auth').classList.remove('hidden');setRole(q.has('admin')?'A':'P');
+  run(loadInfo);gis();
+}
+async function showVerify(k){
+  ['tg','rf','P','A'].forEach(i=>$(i).classList.add('hidden'));if($('boot'))$('boot').remove();$('V').classList.remove('hidden');
+  try{const r=await api('verifikasi',{kode:k});
+    if(r.namaKua)$('kua').textContent=r.namaKua;
+    $('vBox').innerHTML=r.valid?`<div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl"><i class="fa-solid fa-check"></i></div>
+      <h2 class="text-xl font-bold text-emerald-700">Sertifikat valid</h2>
+      <p class="text-sm text-slate-600">Pasangan calon pengantin berikut telah mengikuti Bimbingan Perkawinan dan dinyatakan lulus.</p>
+      <div class="rounded-xl bg-slate-50 p-4 text-sm space-y-1"><p class="font-bold">${esc(r.namaPria)}</p><p class="text-slate-400">&amp;</p><p class="font-bold">${esc(r.namaWanita)}</p>
+      <p class="pt-2 text-xs text-slate-500">Tanggal bimbingan: ${fd(r.tglBimwin)}</p><p class="text-xs text-slate-500">No. sertifikat: ${esc(r.noSertifikat)}</p><p class="text-xs text-slate-500">Penyelenggara: ${esc(r.namaKua)}</p></div>`
+    :`<div class="w-16 h-16 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-3xl"><i class="fa-solid fa-xmark"></i></div><h2 class="text-xl font-bold text-rose-700">Sertifikat tidak ditemukan</h2><p class="text-sm text-slate-600">Kode verifikasi tidak valid atau sertifikat belum diterbitkan.</p>`;
+  }catch(e){$('vBox').innerHTML='<p class="text-sm text-rose-600">Gagal memeriksa: '+esc(e.message)+'</p>'}
+}
+
+/* ---------- init ---------- */
+function applyTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('bw_theme',t)}catch(e){}
+  const i=$('thIcon');if(i)i.className='fa-solid '+(t=='dark'?'fa-sun':'fa-moon')}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme=='dark'?'light':'dark');syncExTheme()}
+function syncExTheme(){const dk=document.documentElement.dataset.theme=='dark',i=$('exThIcon');if(i)i.className='fa-solid '+(dk?'fa-sun':'fa-moon')}
+(function(){let t;try{t=localStorage.getItem('bw_theme')}catch(e){}
+  if(!t)t='light'; // default mode terang; abaikan preferensi sistem
+  document.documentElement.dataset.theme=t})();
+document.addEventListener('DOMContentLoaded',()=>{applyTheme(document.documentElement.dataset.theme);boot()});
+
+/* ---------- peserta: auth ---------- */
+function setAuth(m){const l=m=='l';$('fL').classList.toggle('hidden',!l);$('fR').classList.toggle('hidden',l);$('regRes').classList.add('hidden');if(l&&S.regDone){$('lNik').value='';S.regDone=0}if(!l&&S.regDone){buildReg();fillBim()}
+  $('tL').className='tab '+(l?'bg-white shadow-sm text-emerald-700':'text-slate-500');$('tR').className='tab '+(!l?'bg-white shadow-sm text-emerald-700':'text-slate-500');
+  $('aTitle').textContent=l?'Masuk Akun Catin':'Pendaftaran Bimwin'}
+function buildReg(){
+  const f=(id,l,t='text',x='')=>`<div><label class="text-xs font-semibold">${l}</label><input id="${id}" type="${t}" class="inp" required ${x}></div>`;
+  const nik=x=>'inputmode="numeric" maxlength="16" pattern="\\d{16}" placeholder="16 digit"';
+  $('fR').innerHTML=`<p class="text-xs font-bold text-blue-600">DATA CATIN PRIA</p>${f('rNamaP','Nama lengkap')}${f('rNikP','NIK','text',nik())}${f('rWaP','No. WhatsApp','tel')}${f('rAlP','Alamat')}
+  <p class="text-xs font-bold text-rose-600 pt-2">DATA CATIN WANITA</p>${f('rNamaW','Nama lengkap')}${f('rNikW','NIK','text',nik())}${f('rWaW','No. WhatsApp','tel')}${f('rAlW','Alamat')}
+  <p class="text-xs font-bold text-emerald-700 pt-2">JADWAL</p>${f('rAkad','Tanggal akad nikah','date','onchange="fillBim()"')}
+  <div><label class="text-xs font-semibold">Tanggal Bimwin (sebelum akad)</label><select id="rBim" class="inp" required></select></div><button class="btn w-full">Daftar Bimwin</button>`}
+function fillBim(){const a=$('rAkad')?.value,j=S.info.s.jadwal.filter(d=>a&&d<a);
+  if($('rBim'))$('rBim').innerHTML=`<option value="">${a?(j.length?'Pilih tanggal':'Tidak ada jadwal sebelum akad'):'Isi tanggal akad dulu'}</option>`+j.map(d=>`<option value="${d}">${fd(d)}</option>`).join('')}
+const doLogin=e=>{e.preventDefault();run(async()=>{const nik=$('lNik').value.trim();setUser(await api('login',{nik}));touch();dash();toast('Berhasil masuk')})};
+const doReg=e=>{e.preventDefault();run(async()=>{
+  const g=i=>$(i).value.trim();
+  const r=await api('register',{namaPria:g('rNamaP'),nikPria:g('rNikP'),waPria:g('rWaP'),alamatPria:g('rAlP'),namaWanita:g('rNamaW'),nikWanita:g('rNikW'),waWanita:g('rWaW'),alamatWanita:g('rAlW'),tglAkad:g('rAkad'),tglBimwin:g('rBim')});
+  regDone(r.status)})};
+function regDone(st){
+  S.regDone=1;$('fR').classList.add('hidden');const ok=st=='created';
+  $('regRes').innerHTML=`<div class="rounded-2xl p-4 text-sm text-center space-y-3 border ${ok?'bg-emerald-50 border-emerald-200 text-emerald-800':'bg-amber-50 border-amber-200 text-amber-800'}"><i class="fa-solid ${ok?'fa-circle-check':'fa-circle-info'} text-3xl"></i><p class="font-semibold">${ok?'Berhasil membuat akun, silahkan untuk login dengan NIK masing-masing calon pengantin.':'Anda sudah memiliki akun, silahkan login dengan menggunakan NIK masing-masing calon pengantin.'}</p><button class="btn" onclick="setAuth('l')">Ke halaman login</button></div>`;
+  $('regRes').classList.remove('hidden')}
+function logout(){S.u=null;sessionStorage.removeItem('bw_u');sessionStorage.removeItem('bw_uv');$('dash').classList.add('hidden');$('auth').classList.remove('hidden');$('lNik').value=''}
+
+/* ---------- peserta: dashboard ---------- */
+function dash(){
+  const c=S.u,t=c.g=='P'?c.tesP:c.tesW,both=c.tesP.pass&&c.tesW.pass;
+  const bdg=x=>x.done?(x.pass?'<span class="bd bg-emerald-100 text-emerald-700">LULUS</span>':'<span class="bd bg-rose-100 text-rose-700">BELUM LULUS</span>'):'<span class="bd bg-slate-200 text-slate-600">Belum tes</span>';
+  const lbl=!t.done?'Kerjakan post test':!t.pass?'Kerjakan ulang':t.score<100?'Tingkatkan nilai':'Nilai sempurna';
+  $('auth').classList.add('hidden');$('dash').classList.remove('hidden');
+  $('dash').innerHTML=`
+  ${c.hadir?'':`<div class="rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm"><i class="fa-solid fa-bell text-amber-600 mr-2"></i>Jadwal bimbingan dan pemeriksaan luring Anda: <b>${fd(c.tglBimwin)}, pukul 10.00 WIB</b></div>`}
+  <div class="rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-5 flex flex-wrap justify-between gap-3 items-center">
+    <div><p class="text-xs opacity-80">Masuk sebagai catin ${c.g=='P'?'pria':'wanita'}</p><h2 class="text-xl font-bold">${esc(c.namaPria)} &amp; ${esc(c.namaWanita)}</h2><p class="text-xs opacity-90">Akad: ${fd(c.tglAkad)}</p></div>
+    <button class="btn2" onclick="logout()"><i class="fa-solid fa-right-from-bracket mr-1"></i>Keluar</button></div>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card space-y-2 text-sm"><h3 class="font-bold mb-2">Profil saya</h3><p><b>${esc(c.me.nama)}</b></p><p class="text-slate-500">NIK ${esc(c.me.nik)}</p><p>WA ${esc(c.me.wa)}</p><p>${esc(c.me.alamat)}</p><p class="text-xs text-slate-500 pt-1">Pasangan: ${esc(c.g=='P'?c.namaWanita:c.namaPria)}</p>
+      <button class="btn2 w-full py-2.5 mt-1" onclick="editProfil()"><i class="fa-solid fa-pen mr-1"></i>Edit profil &amp; tanggal Bimwin</button></div>
+    <div class="card space-y-2"><h3 class="font-bold">Status bimbingan luring</h3>${c.hadir?'<span class="bd bg-emerald-100 text-emerald-700 text-xs">Sudah mengikuti bimbingan &amp; pemeriksaan luring</span>':'<span class="bd bg-amber-100 text-amber-700 text-xs">Belum bimbingan luring</span>'}<p class="text-xs text-slate-500">Jadwal: ${fd(c.tglBimwin)} · 10.00 WIB</p>
+      <button class="btn w-full mt-1" onclick="dl('undangan')"><i class="fa-solid fa-file-arrow-down mr-1"></i>Unduh undangan Bimwin</button></div>
+  </div>
+  <div class="card"><h3 class="font-bold mb-3">Post test</h3>
+  ${c.hadir?`<div class="grid sm:grid-cols-2 gap-3 text-sm"><div class="p-3 rounded-xl bg-blue-50">Catin pria ${bdg(c.tesP)}<p class="text-2xl font-bold">${c.tesP.score}</p></div><div class="p-3 rounded-xl bg-rose-50">Catin wanita ${bdg(c.tesW)}<p class="text-2xl font-bold">${c.tesW.score}</p></div></div>
+    <div class="flex flex-wrap gap-2 mt-3"><button class="btn" ${t.score>=100?'disabled':''} onclick="startExam()">${lbl}</button>${both?'<button class="btn bg-indigo-600 hover:bg-indigo-700" onclick="dl(\'sertifikat\')"><i class="fa-solid fa-certificate mr-1"></i>Unduh sertifikat</button>':''}</div>
+    <p class="text-xs text-slate-500 mt-2">KKM ${S.info.s.kkm} · waktu ${S.info.s.waktuTes} menit · kedua catin harus lulus untuk mengunduh sertifikat.</p>`
+   :'<p class="text-sm text-slate-500 bg-slate-50 rounded-xl p-4">Post test terbuka setelah mengikuti bimbingan dan pemeriksaan secara luring.</p>'}</div>
+  <div class="card p-0"><div class="sticky top-[69px] z-20 bg-white rounded-t-2xl p-4 border-b grid grid-cols-1 sm:grid-cols-3 gap-2 items-center"><h3 class="font-bold">Materi</h3>
+    <select id="mKat" class="inp" onchange="renderMateri(1)"></select><input id="mQ" class="inp" placeholder="Cari judul materi" oninput="renderMateri(1)"></div>
+    <div id="mGrid" class="p-4 grid grid-cols-2 md:grid-cols-4 gap-3"></div><div id="mPg" class="flex justify-center items-center gap-2 pb-4"></div></div>`;
+  const ks=[...new Set(S.info.materi.map(m=>m.kategori))].sort();
+  $('mKat').innerHTML='<option value="">Semua jenis materi</option>'+ks.map(k=>`<option>${esc(k)}</option>`).join('');renderMateri(1)}
+const defCoverColor=()=>(S.ad?.settings?.materiCoverColor||S.info.s.materiCoverColor||'#059669');
+const coverColor=m=>(m&&m.warna)||defCoverColor();
+const card=(m,act)=>`<div class="aspect-[3/4] bg-white border rounded-2xl p-2 flex flex-col gap-2 shadow-sm">
+  ${m.tipe=='video'?
+    `<div class="flex-1 rounded-xl text-white flex flex-col items-center justify-center text-center gap-2 relative overflow-hidden bg-slate-800 bg-cover bg-center" style="background-image:url('https://img.youtube.com/vi/${m.videoId}/hqdefault.jpg')"><div class="absolute inset-0 bg-black/40"></div><i class="fa-solid fa-circle-play text-3xl relative z-10 drop-shadow"></i><h4 class="text-xs font-bold line-clamp-3 leading-snug relative z-10 px-2 drop-shadow">${esc(m.judul)}</h4></div>`
+   :`<div class="flex-1 rounded-xl text-white flex flex-col items-center justify-center text-center p-3 gap-2" style="background:${coverColor(m)}">
+    <i class="fa-solid fa-file-pdf text-2xl opacity-90"></i><h4 class="text-xs font-bold line-clamp-4 leading-snug">${esc(m.judul)}</h4>
+    <p class="text-[10px] opacity-80 line-clamp-1">${esc(m.kategori)}</p></div>`}
+  <p class="text-[10px] text-slate-400 truncate px-1">${esc(m.pengarang)||'&nbsp;'}</p>
+  <div class="flex gap-1">${act}</div></div>`;
+function renderMateri(p){
+  const g=$('mGrid');if(!g)return;S.mp=p||S.mp;const k=$('mKat').value,q=$('mQ').value.toLowerCase();
+  const L=S.info.materi.filter(m=>(!k||m.kategori==k)&&m.judul.toLowerCase().includes(q)),n=Math.max(1,Math.ceil(L.length/8));S.mp=Math.min(S.mp,n);
+  g.innerHTML=L.slice((S.mp-1)*8,S.mp*8).map(m=>card(m,`<button class="btn2 flex-1" onclick="prev('${m.id}')">Buka</button>`)).join('')||'<p class="text-sm text-slate-400 col-span-full">Belum ada materi.</p>';
+  $('mPg').innerHTML=pager(S.mp,n,'renderMateri')}
+function prev(id){const m=[...S.info.materi,...(S.ad?S.ad.materi:[])].find(x=>x.id==id);$('vTitle').textContent=m.judul;$('vFrame').src=m.tipe=='video'?`https://www.youtube.com/embed/${m.videoId}`:pv(m.pdfUrl);$('viewer').classList.replace('hidden','flex')}
+function closeV(){$('vFrame').src='';$('viewer').classList.replace('flex','hidden')}
+const dl=j=>run(async()=>{toast('Menyiapkan dokumen...');const d=await api('dokumen',{nik:S.u.me.nik,jenis:j});const a=document.createElement('a');a.href=URL.createObjectURL(b64(d.b64));a.download=d.filename;a.click()});
+const bimOpts=(ak,cur)=>[...new Set([...S.info.s.jadwal,cur])].filter(d=>d&&ak&&d<ak).sort().map(d=>[d,fd(d)]);
+function editProfil(){const c=S.u;
+  form('Edit profil & tanggal Bimwin',[['nama','Nama'],['wa','No. WhatsApp','tel'],['alamat','Alamat'],['tglBimwin','Tanggal Bimwin (sebelum akad)','select',bimOpts(c.tglAkad,c.tglBimwin)]],
+    {nama:c.me.nama,wa:c.me.wa,alamat:c.me.alamat,tglBimwin:c.tglBimwin},
+    async o=>{setUser(await api('updateProfil',{...o,nik:c.me.nik}));dash();closeM();toast('Profil diperbarui')});
+  $('mBody').insertAdjacentHTML('afterbegin',`<div><label class="text-xs font-semibold">Tanggal akad nikah</label><div class="inp bg-slate-100 text-slate-400 flex items-center justify-between gap-2 cursor-not-allowed select-none"><span>${fd(c.tglAkad)}</span><i class="fa-solid fa-lock text-xs"></i></div><p class="text-[11px] text-slate-500 mt-1">Hanya admin KUA yang bisa mengubah tanggal akad. Silakan hubungi admin bila perlu diubah.</p></div>`)}
+
+/* ---------- peserta: post test ---------- */
+const startExam=()=>run(async()=>{
+  const r=await api('startTes',{nik:S.u.me.nik});S.ex={q:r.soal,i:0,a:{},left:r.menit*60,sent:0};
+  $('exWho').textContent=S.u.me.nama;$('exam').classList.remove('hidden');syncExTheme();window.onbeforeunload=()=>true;tick();qShow();
+  S.ex.tm=setInterval(()=>{S.ex.left--;tick();if(S.ex.left<=0)sendExam()},1000)});
+function tick(){const l=Math.max(0,S.ex.left);$('exTime').textContent=String(Math.floor(l/60)).padStart(2,'0')+':'+String(l%60).padStart(2,'0')}
+function qShow(){const x=S.ex,q=x.q[x.i];$('exNo').textContent=`Soal ${x.i+1} dari ${x.q.length} · ${q.kategori}`;$('exQ').textContent=q.teks;
+  $('exOpts').innerHTML=['A','B','C','D'].map(k=>`<button onclick="pick('${k}')" class="w-full text-left p-4 rounded-2xl border text-sm ${x.a[q.id]==k?'bg-emerald-600 border-emerald-500 text-white':'exOptOff bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-800'}"><b class="mr-2">${k}.</b>${esc(q.opts[k])}</button>`).join('');
+  const last=x.i==x.q.length-1;$('exPrev').disabled=x.i==0;$('exNext').classList.toggle('hidden',last);$('exSend').classList.toggle('hidden',!last);
+  renderExNav()}
+function pick(k){S.ex.a[S.ex.q[S.ex.i].id]=k;qShow()}
+function nav(d){S.ex.i+=d;$('exNav').classList.add('hidden');qShow()}
+function jumpTo(i){S.ex.i=i;$('exNav').classList.add('hidden');qShow()}
+function toggleExNav(){$('exNav').classList.toggle('hidden')}
+function renderExNav(){const x=S.ex;$('exNavGrid').innerHTML=x.q.map((q,i)=>{const done=x.a[q.id]!=null,cur=i==x.i;
+  return `<button onclick="jumpTo(${i})" class="h-9 rounded-lg text-xs font-bold ${cur?'ring-2 ring-indigo-500 ':''}${done?'bg-emerald-500 text-white':'bg-slate-200 text-slate-600'}">${i+1}</button>`}).join('')}
+async function sendExam(){
+  const x=S.ex;if(x.sent)return;x.sent=1;clearInterval(x.tm);busy($('exSend'),1);
+  try{const r=await api('submitTes',{nik:S.u.me.nik,jawaban:x.a});setUser(r.c);toast(`Nilai tes ini: ${r.last}`,r.last<S.info.s.kkm)}catch(e){toast(e.message,1)}
+  window.onbeforeunload=null;S.ex=null;busy($('exSend'),0);touch();$('exam').classList.add('hidden');dash()}
+
+/* ---------- modal generik ---------- */
+function closeM(){$('modal').classList.replace('flex','hidden')}
+function showM(t,h){$('mTitle').textContent=t;$('mBody').innerHTML=h;$('modal').classList.replace('hidden','flex')}
+function form(t,fs,v,save,ro){
+  const d=ro?'disabled':'';
+  showM(t,fs.map(([k,l,ty,o])=>{const a=`id="f_${k}" class="inp" ${d}`;
+    return `<div><label class="text-xs font-semibold">${l}</label>`+(ty=='select'?`<select ${a}>${o.map(x=>{const[ov,ol]=Array.isArray(x)?x:[x,x];return `<option value="${esc(ov)}" ${ov==v[k]?'selected':''}>${esc(ol)}</option>`}).join('')}</select>`:ty=='textarea'?`<textarea rows="3" ${a}>${esc(v[k])}</textarea>`:ty=='date'?`<div class="relative"><input id="f_${k}_disp" class="inp pr-9 cursor-pointer" readonly placeholder="Pilih tanggal" value="${v[k]?fd(v[k]):''}" onclick="openDateField('${k}')" ${d}><input id="f_${k}" type="date" value="${esc(v[k])}" class="absolute inset-0 opacity-0 pointer-events-none" ${d}><i class="fa-solid fa-calendar-days text-slate-400 text-sm absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i></div>`:`<input type="${ty||'text'}" value="${esc(v[k])}" ${a}>`)+'</div>'}).join(''));
+  fs.forEach(([k,l,ty])=>{if(ty=='date')$('f_'+k).onchange=function(){$('f_'+k+'_disp').value=this.value?fd(this.value):''}});
+  $('mSave').classList.toggle('hidden',!!ro);
+  $('mSave').onclick=()=>run(async()=>{const o={...v};fs.forEach(([k])=>o[k]=$('f_'+k).value);await save(o)})}
+function openDateField(k){const el=$('f_'+k);if(el.disabled)return;if(el.showPicker)try{el.showPicker()}catch(e){el.focus()}else el.focus()}
+
+/* ---------- admin ---------- */
+async function loadAdmin(){S.ad=await adm('adminData');const a=S.ad;
+  fillBimList();
+  fillSel('sK',a.soal.map(s=>s.kategori),'Semua kategori');fillSel('ak',a.materi.map(m=>m.kategori),'Semua kategori');
+  renderMon();renderSoal();renderAMat(1);renderSet();$('admLoad').classList.add('hidden');if(!window.__t)atab('mon')}
+function fillSel(id,v,all,f=x=>x){const e=$(id),cur=e.value;e.innerHTML=`<option value="">${all}</option>`+[...new Set(v)].filter(Boolean).sort().map(x=>`<option value="${esc(x)}">${esc(f(x))}</option>`).join('');e.value=cur}
+function atab(t){window.__t=t;['mon','soal','mat','set'].forEach(x=>{$('t_'+x).classList.toggle('hidden',x!=t);$('b_'+x).className='tab '+(x==t?'bg-indigo-600 text-white':'text-slate-600 bg-white')})}
+let fBimVal='';
+function fillBimList(){} // sudah tidak dipakai, dibiarkan agar pemanggilan lama tidak error
+function toggleBimPanel(){const p=$('fBimPanel');p.classList.toggle('hidden');if(!p.classList.contains('hidden')){$('fBimSearch').value='';renderBimOptions();$('fBimSearch').focus()}}
+function renderBimOptions(){const q=$('fBimSearch').value.toLowerCase();
+  const dates=[...new Set(S.ad.couples.map(c=>c.tglBimwin))].filter(Boolean).sort();
+  const L=dates.filter(d=>fd(d).toLowerCase().includes(q)||d.includes(q));
+  $('fBimOptions').innerHTML=L.map(d=>`<label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer"><input type="radio" name="fBimRadio" ${fBimVal==d?'checked':''} onchange="pickBim('${d}')">${fd(d)}</label>`).join('')||'<p class="text-xs text-slate-400 px-2 py-1">Tidak ada tanggal cocok</p>'}
+function pickBim(d){fBimVal=d;updateBimLabel();toggleBimPanel();renderMon(1)}
+function updateBimLabel(){$('fBimLabel').textContent=fBimVal?fd(fBimVal):'Semua tanggal bimbingan'}
+function clearBim(){fBimVal='';updateBimLabel();renderBimOptions();renderMon(1)}
+document.addEventListener('click',e=>{if($('fBimWrap')&&!e.target.closest('#fBimWrap'))$('fBimPanel').classList.add('hidden')});
+function bimMatch(c){
+  if(fBimVal&&c.tglBimwin!==fBimVal)return false;
+  const a=$('fBimAwal').value,b=$('fBimAkhir').value;
+  if(a&&c.tglBimwin<a)return false;
+  if(b&&c.tglBimwin>b)return false;
+  return true}
+const monList=()=>S.ad.couples.filter(c=>bimMatch(c)&&($('fS').value===''||st(c)==$('fS').value));
+function renderMon(p){const L=monList(),n=Math.max(1,Math.ceil(L.length/10));S.mnp=Math.min(p||S.mnp||1,n);$('monBody').innerHTML=L.slice((S.mnp-1)*10,S.mnp*10).map(c=>{const s=st(c);
+  return `<tr><td><b>${esc(c.namaPria)} &amp; ${esc(c.namaWanita)}</b><br><span class="text-[10px] text-slate-400">${c.id}</span></td><td>${fd(c.tglBimwin)}</td>
+  <td><span class="bd ${['bg-slate-200 text-slate-600','bg-amber-100 text-amber-700','bg-emerald-100 text-emerald-700'][s]}">${['Belum lulus','Lulus satu','Lulus semua'][s]}</span></td>
+  <td class="whitespace-nowrap"><label class="mr-2 text-sm inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600 cursor-pointer" ${c.hadir?'checked':''} onchange="hadir('${c.id}',this.checked)"> Hadir luring</label><button class="btn2" onclick="detail('${c.id}')">Detail</button></td></tr>`}).join('')||'<tr><td colspan="4" class="text-slate-400">Tidak ada data.</td></tr>';$('monPg').innerHTML=pager(S.mnp,n,'renderMon')}
+function resetMon(){fBimVal='';updateBimLabel();$('fBimAwal').value='';$('fBimAkhir').value='';$('fS').value='';renderMon(1)}
+const hadir=(id,v)=>{const cb=event.target;cb.disabled=true;run(async()=>{try{await adm('setHadir',{id,val:v});S.ad.couples.find(c=>c.id==id).hadir=v;toast(v?'Kehadiran dikonfirmasi':'Konfirmasi dibatalkan')}catch(e){cb.checked=!v;throw e}finally{cb.disabled=false}})};
+function detail(id){const c=S.ad.couples.find(x=>x.id==id),col=(t,k,cl)=>{const T=k=='P'?c.tesP:c.tesW,N=k=='P'?'Pria':'Wanita';return `<div class="rounded-xl p-3 ${cl} text-sm space-y-1"><b>Catin ${N}</b><p>${esc(c['nama'+N])}</p><p>NIK ${esc(c['nik'+N])}</p><p>WA ${esc(c['wa'+N])}</p><p>${esc(c['alamat'+N])}</p><p>Post test: <b>${T.score}</b> (${T.pass?'Lulus':'Belum lulus'})</p></div>`};
+  showM('Detail peserta '+c.id,`<div class="grid md:grid-cols-2 gap-3">${col(0,'P','bg-blue-50')}${col(0,'W','bg-rose-50')}</div><p class="text-xs text-slate-500">Bimwin ${fd(c.tglBimwin)} · Akad ${fd(c.tglAkad)}</p>
+  <div class="flex flex-wrap gap-2"><button class="btn2" onclick="openDoc('${c.id}','undangan')"><i class="fa-solid fa-file-pdf mr-1"></i>Lihat surat undangan</button><button class="btn2" ${st(c)==2?'':'disabled'} onclick="openDoc('${c.id}','sertifikat')"><i class="fa-solid fa-certificate mr-1"></i>Lihat sertifikat</button><button class="btn2" onclick="editJadwal('${c.id}')"><i class="fa-solid fa-calendar-days mr-1"></i>Edit tanggal akad/Bimwin</button></div>`);$('mSave').classList.add('hidden')}
+function editJadwal(id){const c=S.ad.couples.find(x=>x.id==id);
+  form('Edit tanggal akad & Bimwin '+c.id,[['tglAkad','Tanggal akad nikah','date'],['tglBimwin','Tanggal Bimwin','select',[...new Set([...S.ad.settings.jadwal,c.tglBimwin])].filter(d=>d&&d<c.tglAkad).sort().map(d=>[d,fd(d)])]],
+    {tglAkad:c.tglAkad,tglBimwin:c.tglBimwin},
+    async o=>{await adm('updateJadwal',{id,...o});await loadAdmin();closeM();toast('Tanggal diperbarui')});
+  $('f_tglAkad').onchange=function(){$('f_tglAkad_disp').value=this.value?fd(this.value):'';const cur=$('f_tglBimwin').value,ak=this.value;
+    $('f_tglBimwin').innerHTML='<option value="">Pilih tanggal</option>'+[...new Set([...S.ad.settings.jadwal,cur])].filter(d=>d&&ak&&d<ak).sort().map(d=>`<option value="${d}" ${d==cur?'selected':''}>${fd(d)}</option>`).join('')}}
+async function openDoc(id,j){const b=curBtn,w=window.open('','_blank');busy(b,1);try{const d=await adm('dokumenAdmin',{id,jenis:j});w.location=URL.createObjectURL(b64(d.b64))}catch(e){w.close();toast(e.message,1)}finally{busy(b,0)}}
+function exp(){const r=monList().map(c=>({ID:c.id,'Nama Pria':c.namaPria,'NIK Pria':c.nikPria,'WA Pria':c.waPria,'Nama Wanita':c.namaWanita,'NIK Wanita':c.nikWanita,'WA Wanita':c.waWanita,'Tgl Akad':c.tglAkad,'Tgl Bimwin':c.tglBimwin,'Hadir luring':c.hadir?'Ya':'Belum','Nilai Pria':c.tesP.score,'Nilai Wanita':c.tesW.score,Status:['Belum lulus','Lulus satu','Lulus semua'][st(c)]}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),'Peserta');XLSX.writeFile(wb,'Peserta_Bimwin.xlsx')}
+
+/* bank soal */
+function renderSoal(p){const f=i=>$(i).value;
+  const L=S.ad.soal.filter(s=>(!f('sK')||s.kategori==f('sK'))&&(!f('sJ')||s.jenis==f('sJ'))&&(!f('sP')||s.peruntukan==f('sP'))&&(!f('sS')||s.status==f('sS')));const n=Math.max(1,Math.ceil(L.length/10));S.snp=Math.min(p||S.snp||1,n);
+  $('soalBody').innerHTML=L.slice((S.snp-1)*10,S.snp*10).map(s=>
+  `<tr><td class="font-mono text-xs">${s.id}</td><td class="max-w-xs">${esc(s.teks)}</td><td><b class="text-indigo-600">${esc(s.kategori)}</b><br><span class="text-[10px] text-slate-500">${esc(s.jenis)} · ${esc(s.peruntukan)}</span></td>
+  <td><span class="bd ${s.status=='Aktif'?'bg-emerald-100 text-emerald-700':'bg-slate-200 text-slate-600'}">${s.status}</span></td>
+  <td class="whitespace-nowrap space-x-1"><button class="btn2" onclick="formSoal('${s.id}',1)">Lihat</button><button class="btn2" onclick="formSoal('${s.id}')">Edit</button><button class="btn2" onclick="togSoal('${s.id}')">${s.status=='Aktif'?'Nonaktifkan':'Aktifkan'}</button><button class="btn2 text-rose-600" onclick="delSoal('${s.id}')">Hapus</button></td></tr>`).join('')||'<tr><td colspan="5" class="text-slate-400">Belum ada soal.</td></tr>';$('soalPg').innerHTML=pager(S.snp,n,'renderSoal')}
+const JN=['Pilihan Ganda Biasa','Pilihan Ganda Bertingkat'],PN=['Pria Saja','Wanita Saja','Pria dan Wanita'];
+function formSoal(id,ro){
+  const s=S.ad.soal.find(x=>x.id==id)||{jenis:JN[0],peruntukan:PN[2],kunci:'A',pembuat:S.ad.settings.namaKua,skor:''};
+  const sk=String(s.skor||'').split(','),d=ro?'disabled':'';
+  const sel=(k,l,o)=>`<div><label class="text-xs font-semibold">${l}</label><select id="f_${k}" class="inp" ${d}>${o.map(x=>`<option ${x==s[k]?'selected':''}>${x}</option>`).join('')}</select></div>`;
+  const txt=(k,l)=>`<div><label class="text-xs font-semibold">${l}</label><input id="f_${k}" class="inp" value="${esc(s[k])}" ${d}></div>`;
+  showM((id?(ro?'Lihat soal ':'Edit soal '):'Tambah soal')+(id||''),
+    txt('kategori','Kategori / tema (mis. Fikih)')+sel('jenis','Jenis soal',JN)+sel('peruntukan','Peruntukan',PN)+txt('pembuat','Pembuat soal')+
+    `<div><label class="text-xs font-semibold">Pertanyaan</label><textarea id="f_teks" rows="3" class="inp" ${d}>${esc(s.teks)}</textarea></div>
+    <div><div class="flex justify-between text-xs font-semibold"><span>Pilihan jawaban</span><span id="hOpt" class="text-slate-500 font-normal"></span></div><div class="space-y-2 mt-1">`+
+    ['A','B','C','D'].map((k,i)=>`<div class="grid items-center gap-2" style="grid-template-columns:1.75rem 1fr 5rem">
+      <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">${k}</span>
+      <input id="f_opt${k}" class="inp" placeholder="Teks pilihan ${k}" value="${esc(s['opt'+k])}" ${d}>
+      <div class="flex justify-center">
+        <label class="kk flex items-center gap-1 text-xs whitespace-nowrap"><input type="radio" name="kunci" value="${k}" ${s.kunci==k?'checked':''} ${d}>Kunci</label>
+        <input id="f_sk${k}" type="number" min="0" max="100" placeholder="0" title="Bobot skor 0-100" class="inp sk w-full text-center" value="${esc(sk[i]??'')}" ${d}>
+      </div></div>`).join('')+'</div></div>');
+  const sync=()=>{const b=$('f_jenis').value==JN[1];
+    document.querySelectorAll('.kk').forEach(e=>e.classList.toggle('hidden',b));document.querySelectorAll('.sk').forEach(e=>e.classList.toggle('hidden',!b));
+    $('hOpt').textContent=b?'Isi bobot skor 0–100 di kotak kanan tiap pilihan':'Pilih satu kunci jawaban di kanan tiap pilihan'};
+  $('f_jenis').onchange=sync;sync();
+  $('mSave').classList.toggle('hidden',!!ro);
+  $('mSave').onclick=()=>run(async()=>{
+    const v=k=>$('f_'+k).value.trim(),b=v('jenis')==JN[1];
+    const o={...s,kategori:v('kategori'),jenis:v('jenis'),peruntukan:v('peruntukan'),pembuat:v('pembuat'),teks:v('teks'),optA:v('optA'),optB:v('optB'),optC:v('optC'),optD:v('optD')};
+    if(!o.kategori||!o.teks||!o.optA||!o.optB||!o.optC||!o.optD)throw new Error('Kategori, pertanyaan, dan keempat pilihan wajib diisi');
+    if(b){const a=['A','B','C','D'].map(k=>v('sk'+k));if(a.some(x=>x===''||isNaN(x)||x<0||x>100))throw new Error('Nilai tiap pilihan harus berupa angka 0–100');o.skor=a.join(',');o.kunci=''}
+    else{const r=document.querySelector('input[name=kunci]:checked');if(!r)throw new Error('Pilih kunci jawaban');o.kunci=r.value;o.skor=''}
+    await adm('saveSoal',o);await loadAdmin();closeM();toast('Soal disimpan')})}
+const togSoal=id=>run(async()=>{const s={...S.ad.soal.find(x=>x.id==id)};s.status=s.status=='Aktif'?'Nonaktif':'Aktif';await adm('saveSoal',s);await loadAdmin()});
+const delSoal=id=>confirm('Hapus soal ini?')&&run(async()=>{await adm('delSoal',{id});await loadAdmin();toast('Soal dihapus')});
+
+/* materi admin */
+function renderAMat(p){S.amp=p||S.amp;const q=$('aq').value.toLowerCase(),k=$('ak').value,a=$('ap').value.toLowerCase();
+  const L=S.ad.materi.filter(m=>m.judul.toLowerCase().includes(q)&&(!k||m.kategori==k)&&m.pengarang.toLowerCase().includes(a)),n=Math.max(1,Math.ceil(L.length/10));S.amp=Math.min(S.amp,n);
+  $('aGrid').innerHTML=L.slice((S.amp-1)*10,S.amp*10).map(m=>card(m,`<button class="btn2 flex-1" onclick="formMateri('${m.id}',1)">Detail</button><button class="btn2 flex-1" onclick="formMateri('${m.id}')">Edit</button><button class="btn2 flex-1" onclick="prev('${m.id}')">Preview</button>`)).join('')||'<p class="text-sm text-slate-400 col-span-full">Belum ada materi.</p>';
+  $('aPg').innerHTML=pager(S.amp,n,'renderAMat')}
+function fileToB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)})}
+function formMateri(id,ro){const m=S.ad.materi.find(x=>x.id==id)||{};const d=ro?'disabled':'';
+  const f=(k,l,ty)=>`<div><label class="text-xs font-semibold">${l}</label><input id="f_${k}" class="inp" ${ty?'type="'+ty+'"':''} value="${esc(m[k])}" ${d}></div>`;
+  const wc=m.warna||defCoverColor();
+  const isVid=m.tipe=='video';
+  showM(id?(ro?'Detail materi':'Edit materi'):'Tambah materi',
+    f('judul','Judul materi')+f('kategori','Kategori / tema')+f('pengarang','Pengarang')+
+    `<div><label class="text-xs font-semibold">Warna sampul materi ini</label><div class="flex items-center gap-3 mt-1"><input id="f_warna" type="color" value="${wc}" class="h-11 w-16 rounded-lg border cursor-pointer" ${d} oninput="$('f_wPrev').style.background=this.value"><span id="f_wPrev" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:${wc}">Contoh sampul</span></div></div>` +
+    `<div><label class="text-xs font-semibold">Jenis materi</label><select id="f_tipe" class="inp" ${d} onchange="syncMatTipe()"><option value="pdf" ${!isVid?'selected':''}>File PDF</option><option value="video" ${isVid?'selected':''}>Video YouTube</option></select></div>`+
+    `<div id="secPdf"><label class="text-xs font-semibold">File PDF${m.pdfUrl?' (kosongkan jika tidak diganti)':''}</label>
+      ${m.pdfUrl?`<p class="text-xs mb-1"><a href="${pv(m.pdfUrl)}" target="_blank" class="text-emerald-600 underline">Lihat file PDF saat ini</a></p>`:''}
+      ${d?(m.pdfUrl?'':'<p class="text-xs text-slate-400">Belum ada file</p>'):`<input id="f_pdf" type="file" accept="application/pdf" class="inp" ${d}><p class="text-xs text-slate-500 mt-1">${m.pdfUrl?'Kosongkan jika tidak ingin mengganti file.':'Maks. 10 MB.'}</p>`}</div>`+
+    `<div id="secVid" class="hidden"><label class="text-xs font-semibold">Link video YouTube</label><input id="f_videoUrl" class="inp" placeholder="https://www.youtube.com/watch?v=..." value="${isVid?'https://youtu.be/'+m.videoId:''}" ${d}><p class="text-xs text-slate-500 mt-1">Tempel tautan video YouTube (biasa, youtu.be, atau shorts).</p></div>`);
+  syncMatTipe();
+  $('mSave').classList.toggle('hidden',!!ro);
+  if(id&&!ro)$('mBody').insertAdjacentHTML('beforeend',`<button class="btn2 text-rose-600" onclick="delMat('${id}')">Hapus materi ini</button>`);
+  $('mSave').onclick=()=>run(async()=>{
+    const v=k=>$('f_'+k).value.trim(),tipe=$('f_tipe').value,o={id:m.id,judul:v('judul'),kategori:v('kategori'),pengarang:v('pengarang'),warna:v('warna'),tipe};
+    if(!o.judul||!o.kategori)throw new Error('Judul dan kategori wajib diisi');
+    if(tipe=='video'){o.videoUrl=v('videoUrl');if(!o.videoUrl)throw new Error('Link video YouTube wajib diisi')}
+    else{const file=$('f_pdf').files[0];
+      if(file){if(file.size>10*1024*1024)throw new Error('Ukuran PDF maksimal 10 MB');o.pdfBase64=await fileToB64(file);o.pdfName=file.name}
+      else if(!m.pdfUrl)throw new Error('File PDF wajib diunggah')}
+    await adm('saveMateri',o);await loadAdmin();closeM();toast('Materi disimpan')})}
+function syncMatTipe(){const v=$('f_tipe')?.value;if(!v)return;$('secPdf').classList.toggle('hidden',v=='video');$('secVid').classList.toggle('hidden',v!='video')}
+const delMat=id=>confirm('Hapus materi ini?')&&run(async()=>{await adm('delMateri',{id});await loadAdmin();closeM();toast('Materi dihapus')});
+
+/* pengaturan */
+function renderSet(){const s=S.ad.settings;
+  const cardS=(t,fs,extra='')=>`<div class="card space-y-3"><h3 class="font-bold">${t}</h3>${fs.map(([k,l,ty])=>`<div><label class="text-xs font-semibold">${l}</label><input id="s_${k}" type="${ty||'text'}" value="${esc(s[k])}" class="inp"></div>`).join('')}${extra}<button class="btn" onclick="saveSet('${fs.map(f=>f[0]).join(',')}')">Simpan</button></div>`;
+  $('t_set').innerHTML=`<div id="setGrid">  <div class="card space-y-3"><h3 class="font-bold">Tampilan materi</h3><p class="text-xs text-slate-500 -mt-1">Warna bawaan untuk materi baru. Tiap materi bisa diberi warna sendiri saat ditambah/diedit.</p><div><label class="text-xs font-semibold">Warna sampul bawaan</label><div class="flex items-center gap-3 mt-1"><input id="s_materiCoverColor" type="color" value="${s.materiCoverColor||'#059669'}" class="h-11 w-16 rounded-lg border cursor-pointer" oninput="$('cvPrev').style.background=this.value"><span id="cvPrev" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:${s.materiCoverColor||'#059669'}">Contoh sampul</span></div><p class="text-xs text-slate-500 mt-1">Berlaku untuk tampilan peserta &amp; admin.</p></div><button class="btn" onclick="saveSet('materiCoverColor')">Simpan warna bawaan</button></div>
+  ${cardS('Profil instansi',[['namaKua','Nama KUA'],['alamatKua','Alamat KUA'],['kepalaKua','Nama kepala'],['nipKepala','NIP kepala'],['waAdmin','No. WhatsApp Admin (kontak peserta)','tel']])}
+  <div class="card space-y-3"><h3 class="font-bold">Jadwal Bimwin yang tersedia</h3><div class="flex gap-2"><div class="relative flex-1"><input id="newJ" type="date" class="inp w-full pr-9"><i class="fa-solid fa-calendar-days text-slate-400 text-sm absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i></div><button class="btn" onclick="addJ()">Tambah</button></div>
+    <div class="flex flex-wrap gap-2">${(s.jadwal||[]).slice().sort().map(d=>`<span class="bd bg-emerald-50 text-emerald-700 text-xs">${fd(d)} <button onclick="delJ('${d}')" class="ml-1 text-rose-500">×</button></span>`).join('')||'<span class="text-xs text-slate-400">Belum ada jadwal.</span>'}</div></div>
+  ${cardS('Template undangan',[['formatUndangan','Format nomor ({COUNTER} {YEAR} {MONTH} {BULAN_ROMAWI})'],['counterUndangan','Counter berikutnya','number'],['tplUndangan','ID Google Docs / Slides template']])}
+  ${cardS('Template sertifikat',[['formatSertifikat','Format nomor ({COUNTER} {YEAR} {MONTH} {BULAN_ROMAWI})'],['counterSertifikat','Counter berikutnya','number'],['tplSertifikat','ID Google Docs / Slides template'],['urlAplikasi','URL aplikasi untuk QR verifikasi']])}
+${cardS('Post test',[['kkm','KKM','number'],['waktuTes','Waktu mengerjakan (menit)','number']])}
+  <div class="card space-y-2"><h3 class="font-bold">Placeholder untuk template</h3><p class="text-xs text-slate-500">Tulis persis di dokumen/slide, termasuk kurung kurawal. Counter undangan dan sertifikat berjalan terpisah. Untuk QR sertifikat, letakkan {QR_CODE} sendirian di satu kotak/paragraf pada template.</p><div class="flex flex-wrap gap-1">${PH.map(p=>`<code class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px]">{${p}}</code>`).join('')}</div></div></div>`}
+const saveSet=ks=>run(async()=>{const o={};ks.split(',').forEach(k=>{const v=$('s_'+k).value;o[k]=['kkm','waktuTes','counterUndangan','counterSertifikat'].includes(k)?Number(v):v.trim()});
+  S.ad.settings=await adm('saveSettings',o);S.info.s.namaKua=S.ad.settings.namaKua;$('kua').textContent=S.ad.settings.namaKua;S.info.s.materiCoverColor=S.ad.settings.materiCoverColor;renderSet();renderAMat(S.amp);toast('Pengaturan disimpan')});
+const setJ=j=>run(async()=>{S.ad.settings=await adm('saveSettings',{jadwal:j});renderSet()});
+const addJ=()=>{const d=$('newJ').value;if(d&&!(S.ad.settings.jadwal||[]).includes(d))setJ([...(S.ad.settings.jadwal||[]),d])};
+const delJ=d=>setJ((S.ad.settings.jadwal||[]).filter(x=>x!=d));
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal Bimwin V2</title>
+<title>PORTAL BIMWIN V2</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -453,12 +453,14 @@ const hadir=(id,v)=>{const cb=event.target;cb.disabled=true;run(async()=>{try{aw
 function detail(id){const c=S.ad.couples.find(x=>x.id==id),col=(t,k,cl)=>{const T=k=='P'?c.tesP:c.tesW,N=k=='P'?'Pria':'Wanita';return `<div class="rounded-xl p-3 ${cl} text-sm space-y-1"><b>Catin ${N}</b><p>${esc(c['nama'+N])}</p><p>NIK ${esc(c['nik'+N])}</p><p>WA ${esc(c['wa'+N])}</p><p>${esc(c['alamat'+N])}</p><p>Post test: <b>${T.score}</b> (${T.pass?'Lulus':'Belum lulus'})</p></div>`};
   showM('Detail peserta '+c.id,`<div class="grid md:grid-cols-2 gap-3">${col(0,'P','bg-blue-50')}${col(0,'W','bg-rose-50')}</div><p class="text-xs text-slate-500">Bimwin ${fd(c.tglBimwin)} · Akad ${fd(c.tglAkad)}</p>
   <div class="flex flex-wrap gap-2"><button class="btn2" onclick="openDoc('${c.id}','undangan')"><i class="fa-solid fa-file-pdf mr-1"></i>Lihat surat undangan</button><button class="btn2" ${st(c)==2?'':'disabled'} onclick="openDoc('${c.id}','sertifikat')"><i class="fa-solid fa-certificate mr-1"></i>Lihat sertifikat</button><button class="btn2" onclick="editJadwal('${c.id}')"><i class="fa-solid fa-calendar-days mr-1"></i>Edit tanggal akad/Bimwin</button></div>`);$('mSave').classList.add('hidden')}
+const todayStr=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
 function editJadwal(id){const c=S.ad.couples.find(x=>x.id==id);
-  form('Edit tanggal akad & Bimwin '+c.id,[['tglAkad','Tanggal akad nikah','date'],['tglBimwin','Tanggal Bimwin','select',[...new Set([...S.ad.settings.jadwal,c.tglBimwin])].filter(d=>d&&d<c.tglAkad).sort().map(d=>[d,fd(d)])]],
+  const opt=(ak,cur)=>[...new Set([...S.ad.settings.jadwal,cur])].filter(d=>d&&ak&&d<ak&&(d>=todayStr()||d==cur)).sort().map(d=>[d,fd(d)]);
+  form('Edit tanggal akad & Bimwin '+c.id,[['tglAkad','Tanggal akad nikah','date'],['tglBimwin','Tanggal Bimwin','select',opt(c.tglAkad,c.tglBimwin)]],
     {tglAkad:c.tglAkad,tglBimwin:c.tglBimwin},
     async o=>{await adm('updateJadwal',{id,...o});await loadAdmin();closeM();toast('Tanggal diperbarui')});
   $('f_tglAkad').onchange=function(){$('f_tglAkad_disp').value=this.value?fd(this.value):'';const cur=$('f_tglBimwin').value,ak=this.value;
-    $('f_tglBimwin').innerHTML='<option value="">Pilih tanggal</option>'+[...new Set([...S.ad.settings.jadwal,cur])].filter(d=>d&&ak&&d<ak).sort().map(d=>`<option value="${d}" ${d==cur?'selected':''}>${fd(d)}</option>`).join('')}}
+    $('f_tglBimwin').innerHTML='<option value="">Pilih tanggal</option>'+opt(ak,cur).map(([d,l])=>`<option value="${d}" ${d==cur?'selected':''}>${l}</option>`).join('')}}
 async function openDoc(id,j){const b=curBtn,w=window.open('','_blank');busy(b,1);try{const d=await adm('dokumenAdmin',{id,jenis:j});w.location=URL.createObjectURL(b64(d.b64))}catch(e){w.close();toast(e.message,1)}finally{busy(b,0)}}
 function exp(){const r=monList().map(c=>({ID:c.id,'Nama Pria':c.namaPria,'NIK Pria':c.nikPria,'WA Pria':c.waPria,'Nama Wanita':c.namaWanita,'NIK Wanita':c.nikWanita,'WA Wanita':c.waWanita,'Tgl Akad':c.tglAkad,'Tgl Bimwin':c.tglBimwin,'Hadir luring':c.hadir?'Ya':'Belum','Nilai Pria':c.tesP.score,'Nilai Wanita':c.tesW.score,Status:['Belum lulus','Lulus satu','Lulus semua'][st(c)]}));
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),'Peserta');XLSX.writeFile(wb,'Peserta_Bimwin.xlsx')}
@@ -540,7 +542,8 @@ function renderSet(){const s=S.ad.settings;
   $('t_set').innerHTML=`<div id="setGrid">  <div class="card space-y-3"><h3 class="font-bold">Tampilan materi</h3><p class="text-xs text-slate-500 -mt-1">Warna bawaan untuk materi baru. Tiap materi bisa diberi warna sendiri saat ditambah/diedit.</p><div><label class="text-xs font-semibold">Warna sampul bawaan</label><div class="flex items-center gap-3 mt-1"><input id="s_materiCoverColor" type="color" value="${s.materiCoverColor||'#059669'}" class="h-11 w-16 rounded-lg border cursor-pointer" oninput="$('cvPrev').style.background=this.value"><span id="cvPrev" class="px-3 py-2 rounded-lg text-white text-xs font-bold" style="background:${s.materiCoverColor||'#059669'}">Contoh sampul</span></div><p class="text-xs text-slate-500 mt-1">Berlaku untuk tampilan peserta &amp; admin.</p></div><button class="btn" onclick="saveSet('materiCoverColor')">Simpan warna bawaan</button></div>
   ${cardS('Profil instansi',[['namaKua','Nama KUA'],['alamatKua','Alamat KUA'],['kepalaKua','Nama kepala'],['nipKepala','NIP kepala'],['waAdmin','No. WhatsApp Admin (kontak peserta)','tel']])}
   <div class="card space-y-3"><h3 class="font-bold">Jadwal Bimwin yang tersedia</h3><div class="flex gap-2"><div class="relative flex-1"><input id="newJ" type="date" class="inp w-full pr-9"><i class="fa-solid fa-calendar-days text-slate-400 text-sm absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i></div><button class="btn" onclick="addJ()">Tambah</button></div>
-    <div class="flex flex-wrap gap-2">${(s.jadwal||[]).slice().sort().map(d=>`<span class="bd bg-emerald-50 text-emerald-700 text-xs">${fd(d)} <button onclick="delJ('${d}')" class="ml-1 text-rose-500">×</button></span>`).join('')||'<span class="text-xs text-slate-400">Belum ada jadwal.</span>'}</div></div>
+    <div class="flex flex-wrap gap-2">${(s.jadwal||[]).slice().sort().map(d=>{const lewat=d<todayStr();return `<span class="bd ${lewat?'bg-slate-100 text-slate-400':'bg-emerald-50 text-emerald-700'} text-xs">${fd(d)}${lewat?' · sudah lewat':''} <button onclick="delJ('${d}')" class="ml-1 ${lewat?'text-slate-400':'text-rose-500'}">×</button></span>`}).join('')||'<span class="text-xs text-slate-400">Belum ada jadwal.</span>'}</div>
+    <p class="text-[11px] text-slate-500">Tanggal yang sudah lewat otomatis tidak lagi ditawarkan sebagai pilihan untuk pendaftaran/perubahan jadwal baru, tapi data peserta yang sudah memilihnya tetap tersimpan. Tekan × untuk menghapus tanggal dari daftar ini secara manual.</p></div>
   ${cardS('Template undangan',[['formatUndangan','Format nomor ({COUNTER} {YEAR} {MONTH} {BULAN_ROMAWI})'],['counterUndangan','Counter berikutnya','number'],['tplUndangan','ID Google Docs / Slides template']])}
   ${cardS('Template sertifikat',[['formatSertifikat','Format nomor ({COUNTER} {YEAR} {MONTH} {BULAN_ROMAWI})'],['counterSertifikat','Counter berikutnya','number'],['tplSertifikat','ID Google Docs / Slides template'],['urlAplikasi','URL aplikasi untuk QR verifikasi']])}
 ${cardS('Post test',[['kkm','KKM','number'],['waktuTes','Waktu mengerjakan (menit)','number']])}

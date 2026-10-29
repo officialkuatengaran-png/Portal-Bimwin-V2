@@ -118,6 +118,7 @@ td{@apply px-3 py-2 text-sm border-t border-slate-100 align-top}
     </div>
     <div id="t_mon" class="space-y-3">
       <div class="card flex flex-wrap items-center gap-2">
+        <div class="relative flex-1 min-w-[170px]"><input id="fNama" type="search" class="inp pl-9 w-full" placeholder="Cari nama catin..." oninput="renderMon(1)" autocomplete="off"><i class="fa-solid fa-magnifying-glass text-slate-400 text-xs absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i></div>
         <div id="fBimWrap" class="relative flex-1 min-w-[170px]">
           <button type="button" id="fBimBtn" onclick="toggleBimPanel()" class="inp text-left flex justify-between items-center gap-2"><span id="fBimLabel" class="truncate">Semua tanggal bimbingan</span><i class="fa-solid fa-chevron-down text-xs shrink-0"></i></button>
           <div id="fBimPanel" class="hidden absolute z-30 mt-1 w-72 max-w-[90vw] bg-white border border-slate-200 rounded-xl shadow-lg p-2">
@@ -444,13 +445,16 @@ function bimMatch(c){
   if(a&&c.tglBimwin<a)return false;
   if(b&&c.tglBimwin>b)return false;
   return true}
-const monList=()=>S.ad.couples.filter(c=>bimMatch(c)&&($('fS').value===''||st(c)==$('fS').value));
+const namaMatch=c=>{const q=$('fNama').value.trim().toLowerCase();return !q||(String(c.namaPria||'')+' '+String(c.namaWanita||'')).toLowerCase().includes(q)};
+// Data di sheet berurutan sesuai waktu masuk (baris terbaru di bawah), jadi dibalik agar yang terakhir masuk tampil paling atas
+const monList=()=>S.ad.couples.filter(c=>bimMatch(c)&&namaMatch(c)&&($('fS').value===''||st(c)==$('fS').value)).reverse();
 function renderMon(p){const L=monList(),n=Math.max(1,Math.ceil(L.length/10));S.mnp=Math.min(p||S.mnp||1,n);$('monBody').innerHTML=L.slice((S.mnp-1)*10,S.mnp*10).map(c=>{const s=st(c);
   return `<tr><td><b>${esc(c.namaPria)} &amp; ${esc(c.namaWanita)}</b><br><span class="text-[10px] text-slate-400">${c.id}</span></td><td>${fd(c.tglBimwin)}</td>
   <td><span class="bd ${['bg-slate-200 text-slate-600','bg-amber-100 text-amber-700','bg-emerald-100 text-emerald-700'][s]}">${['Belum lulus','Lulus satu','Lulus semua'][s]}</span></td>
-  <td class="whitespace-nowrap"><label class="mr-2 text-sm inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600 cursor-pointer" ${c.hadir?'checked':''} onchange="hadir('${c.id}',this.checked)"> Hadir luring</label><button class="btn2" onclick="detail('${c.id}')">Detail</button></td></tr>`}).join('')||'<tr><td colspan="4" class="text-slate-400">Tidak ada data.</td></tr>';$('monPg').innerHTML=pager(S.mnp,n,'renderMon')}
-function resetMon(){fBimVal='';updateBimLabel();$('fBimAwal').value='';$('fBimAkhir').value='';$('fS').value='';renderMon(1)}
+  <td class="whitespace-nowrap"><label class="mr-2 text-sm inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" class="w-5 h-5 accent-emerald-600 cursor-pointer" ${c.hadir?'checked':''} onchange="hadir('${c.id}',this.checked)"> Hadir luring</label><button class="btn2" onclick="detail('${c.id}')">Detail</button> <button class="btn2 text-rose-600" onclick="delPeserta('${c.id}')">Hapus</button></td></tr>`}).join('')||'<tr><td colspan="4" class="text-slate-400">Tidak ada data.</td></tr>';$('monPg').innerHTML=pager(S.mnp,n,'renderMon')}
+function resetMon(){$('fNama').value='';fBimVal='';updateBimLabel();$('fBimAwal').value='';$('fBimAkhir').value='';$('fS').value='';renderMon(1)}
 const hadir=(id,v)=>{const cb=event.target;cb.disabled=true;run(async()=>{try{await adm('setHadir',{id,val:v});S.ad.couples.find(c=>c.id==id).hadir=v;toast(v?'Kehadiran dikonfirmasi':'Konfirmasi dibatalkan')}catch(e){cb.checked=!v;throw e}finally{cb.disabled=false}})};
+const delPeserta=id=>{const c=S.ad.couples.find(x=>x.id==id);if(!c||!confirm(`Hapus data peserta ${c.namaPria} & ${c.namaWanita}?\nData yang dihapus tidak dapat dikembalikan.`))return;run(async()=>{await adm('delPeserta',{id});S.ad.couples=S.ad.couples.filter(x=>x.id!=id);renderMon();toast('Data peserta dihapus')})};
 function detail(id){const c=S.ad.couples.find(x=>x.id==id),col=(t,k,cl)=>{const T=k=='P'?c.tesP:c.tesW,N=k=='P'?'Pria':'Wanita';return `<div class="rounded-xl p-3 ${cl} text-sm space-y-1"><b>Catin ${N}</b><p>${esc(c['nama'+N])}</p><p>NIK ${esc(c['nik'+N])}</p><p>WA ${esc(c['wa'+N])}</p><p>${esc(c['alamat'+N])}</p><p>Post test: <b>${T.score}</b> (${T.pass?'Lulus':'Belum lulus'})</p></div>`};
   showM('Detail peserta '+c.id,`<div class="grid md:grid-cols-2 gap-3">${col(0,'P','bg-blue-50')}${col(0,'W','bg-rose-50')}</div><p class="text-xs text-slate-500">Bimwin ${fd(c.tglBimwin)} · Akad ${fd(c.tglAkad)}</p>
   <div class="flex flex-wrap gap-2"><button class="btn2" onclick="openDoc('${c.id}','undangan')"><i class="fa-solid fa-file-pdf mr-1"></i>Lihat surat undangan</button><button class="btn2" ${st(c)==2?'':'disabled'} onclick="openDoc('${c.id}','sertifikat')"><i class="fa-solid fa-certificate mr-1"></i>Lihat sertifikat</button><button class="btn2" onclick="editJadwal('${c.id}')"><i class="fa-solid fa-calendar-days mr-1"></i>Edit tanggal akad/Bimwin</button></div>`);$('mSave').classList.add('hidden')}
